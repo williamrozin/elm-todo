@@ -1,9 +1,12 @@
 module Main exposing (Action(..), Model, TODO, init, main, update, view)
 
 import Browser
-import Html exposing (Html, button, div, input, li, text, ul)
+import Css exposing (..)
+import Html exposing (Html, button, div, h1, input, li, text, ul)
 import Html.Attributes exposing (id, placeholder, style, value)
 import Html.Events exposing (onClick, onInput)
+import Html.Events.Extra exposing (onEnter)
+import Html.Extra as Html
 
 
 main =
@@ -68,49 +71,127 @@ update action model =
             { model | todos = todos }
 
         AddTodo content ->
-            { model | todos = TODO False content (generateID model) :: model.todos, text = "" }
+            if content == "" then
+                { model | todos = model.todos }
+
+            else
+                { model | todos = TODO False content (generateID model) :: model.todos, text = "" }
 
 
 
 -- VIEW
 
 
-getTextStyle : TODO -> String
-getTextStyle l =
-    if l.done then
-        "line-through"
-
-    else
-        ""
-
-
 getTextColor : TODO -> String
-getTextColor l =
-    if l.done then
+getTextColor todo =
+    if todo.done then
         "green"
 
     else
         ""
 
 
-renderList lst =
-    lst
+getBackgroundColor : TODO -> String
+getBackgroundColor todo =
+    if todo.done then
+        "#E8FFDA"
+
+    else
+        "#F9F9F9"
+
+
+renderButtonAdd description =
+    button
+        [ onClick (AddTodo description)
+        , style "padding" "12px"
+        , style "border" "1px solid cornflowerblue"
+        , style "border-top-right-radius" "4px"
+        , style "border-bottom-right-radius" "4px"
+        , style "background-color" "#EEEEEE"
+        , style "cursor" "pointer"
+        , style "font-size" "18px"
+        , style "text-transform" "uppercase"
+        ]
+        [ text "Add TODO" ]
+
+
+renderTextField description =
+    input
+        [ placeholder "What do you need to do?"
+        , onInput Change
+        , onEnter (AddTodo description)
+        , value description
+        , style "padding" "12px"
+        , style "border" "1px solid cornflowerblue"
+        , style "border-top-left-radius" "4px"
+        , style "border-bottom-left-radius" "4px"
+        , style "border-right" "none"
+        , style "flex" "1"
+        , style "font-size" "18px"
+        ]
+        []
+
+
+renderInput text =
+    div
+        [ style "padding" "24px 0"
+        , style "display" "flex"
+        , style "width" "100%"
+        , style "max-width" "720px"
+        ]
+        [ renderTextField text
+        , renderButtonAdd text
+        ]
+
+
+renderTODO todo =
+    li
+        [ style "color" (getTextColor todo)
+        , style "padding" "24px"
+        , style "cursor" "pointer"
+        , style "border" "1px solid silver"
+        , style "border-radius" "4px"
+        , style "margin-bottom" "24px"
+        , style "background-color" (getBackgroundColor todo)
+        , onClick (ToggleDone todo.id)
+        ]
+        [ text todo.content ]
+
+
+renderList todos =
+    todos
         |> List.map
-            (\l ->
-                li
-                    [ style "text-decoration" (getTextStyle l)
-                    , style "color" (getTextColor l)
-                    , onClick (ToggleDone l.id)
-                    ]
-                    [ text l.content ]
-            )
-        |> ul []
+            (\todo -> renderTODO todo)
+        |> ul
+            [ style "margin" "0"
+            , style "width" "100%"
+            , style "max-width" "720px"
+            , style "list-style-type" "none"
+            , style "padding" "0"
+            ]
+
+
+renderTitle =
+    h1
+        [ style "color" "cornflowerblue"
+        , style "font-size" "62px"
+        , style "font-weight" "100"
+        , style "margin" "0"
+        ]
+        [ text "TODO List" ]
 
 
 view : Model -> Html Action
 view model =
-    div []
-        [ input [ placeholder "Describe your next TODO", onInput Change, value model.text ] []
-        , button [ onClick (AddTodo model.text) ] [ text "Add TODO" ]
+    div
+        [ style "display" "flex"
+        , style "flex-direction" "column"
+        , style "align-items" "center"
+        , style "justify-content" "center"
+        , style "padding" "48px"
+        , style "font-family" "sans-serif"
+        ]
+        [ renderTitle
+        , renderInput model.text
         , renderList model.todos
         ]
