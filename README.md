@@ -1,6 +1,6 @@
 # elm-todo
 
-A very simple TODO list app that i built to learn [Elm](https://elm-lang.org/)
+A very simple TODO list app that i built to learn more about [Elm](https://elm-lang.org/)
 
 ## Pre-requirements
 
@@ -38,14 +38,14 @@ elm make src/Main.elm --output=build/index.html
 
 It will generate a `index.html` file in the `dist` folder.
 
-### Preview
+## Preview
 
 ![Preview](https://i.imgur.com/lKw4ruP.png)
 
 
 ## Licence
 
-Apache 2.0
+[Apache-2.0](https://github.com/williamrozin/elm-todo/blob/master/LICENSE)
 
 ----
 
