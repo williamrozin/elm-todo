@@ -105,9 +105,10 @@ renderButtonAdd description =
         [ onClick (AddTodo description)
         , style "padding" "12px"
         , style "border" "1px solid cornflowerblue"
+        , style "color" "cornflowerblue"
         , style "border-top-right-radius" "4px"
         , style "border-bottom-right-radius" "4px"
-        , style "background-color" "#EEEEEE"
+        , style "background-color" "#F6F6FF"
         , style "cursor" "pointer"
         , style "font-size" "18px"
         , style "text-transform" "uppercase"
