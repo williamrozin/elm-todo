@@ -1,6 +1,6 @@
 # elm-todo
 
-A very simple TODO list app that i built to learn [Elm](https://elm-lang.org/)
+A very simple TODO list app that i built to learn more about [Elm](https://elm-lang.org/)
 
 ## Pre-requirements
 
