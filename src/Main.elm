@@ -18,7 +18,7 @@ main =
 
 
 type alias TODO =
-    { done : Bool, content : String, id : String }
+    { deleted : Bool, done : Bool, content : String, id : String }
 
 
 type alias Model =
@@ -38,6 +38,7 @@ type Action
     = Change String
     | ToggleDone String
     | AddTodo String
+    | Delete String
 
 
 generateID : Model -> String
@@ -70,12 +71,23 @@ update action model =
             in
             { model | todos = todos }
 
+        Delete id ->
+            let
+                deleteTodo : TODO -> TODO
+                deleteTodo todo =
+                    { todo | deleted = True }
+
+                todos =
+                    List.map deleteTodo model.todos
+            in
+            { model | todos = todos }
+
         AddTodo content ->
             if content == "" then
                 { model | todos = model.todos }
 
             else
-                { model | todos = TODO False content (generateID model) :: model.todos, text = "" }
+                { model | todos = TODO False False content (generateID model) :: model.todos, text = "" }
 
 
 
@@ -153,14 +165,26 @@ renderTODO todo =
         , style "border" "1px solid silver"
         , style "border-radius" "4px"
         , style "margin-bottom" "24px"
+        , style "display" "grid"
+        , style "grid-template-columns" "9fr 1fr"
         , style "background-color" (getBackgroundColor todo)
         , onClick (ToggleDone todo.id)
         ]
-        [ text todo.content ]
+        [ div
+            []
+            [ text todo.content ]
+        , button
+            [ style "color" "red"
+            , onClick (Delete todo.id)
+            ]
+            [ text "Excluir" ]
+        ]
 
 
 renderList todos =
     todos
+        |> List.filter
+            (\todo -> todo.deleted == False)
         |> List.map
             (\todo -> renderTODO todo)
         |> ul
