@@ -2,7 +2,8 @@ module Main exposing (Action(..), Model, TODO, init, main, update, view)
 
 import Browser
 import Css exposing (..)
-import Html exposing (Html, button, div, h1, input, li, text, ul)
+import FeatherIcons
+import Html exposing (Html, button, div, h1, input, li, option, select, text, ul)
 import Html.Attributes exposing (id, placeholder, style, value)
 import Html.Events exposing (onClick, onInput)
 import Html.Events.Extra exposing (onEnter)
@@ -22,12 +23,12 @@ type alias TODO =
 
 
 type alias Model =
-    { text : String, todos : List TODO }
+    { text : String, todos : List TODO, filter : String }
 
 
 init : Model
 init =
-    { text = "", todos = [] }
+    { text = "", todos = [], filter = "3" }
 
 
 
@@ -39,6 +40,7 @@ type Action
     | ToggleDone String
     | AddTodo String
     | Delete String
+    | ChangeFilter String
 
 
 generateID : Model -> String
@@ -75,12 +77,19 @@ update action model =
             let
                 deleteTodo : TODO -> TODO
                 deleteTodo todo =
-                    { todo | deleted = True }
+                    if todo.id == id then
+                        { todo | deleted = True }
+
+                    else
+                        { todo | deleted = todo.deleted }
 
                 todos =
                     List.map deleteTodo model.todos
             in
             { model | todos = todos }
+
+        ChangeFilter option ->
+            { model | filter = option }
 
         AddTodo content ->
             if content == "" then
@@ -110,6 +119,20 @@ getBackgroundColor todo =
 
     else
         "#F9F9F9"
+
+
+filterTODO todo filter =
+    if filter == "3" then
+        (todo.done == False) && (todo.deleted == False)
+
+    else if filter == "0" then
+        todo.deleted == True
+
+    else if filter == "1" then
+        todo.done == True
+
+    else
+        True
 
 
 renderButtonAdd description =
@@ -165,26 +188,58 @@ renderTODO todo =
         , style "border" "1px solid silver"
         , style "border-radius" "4px"
         , style "margin-bottom" "24px"
-        , style "display" "grid"
-        , style "grid-template-columns" "9fr 1fr"
+        , style "display" "flex"
+        , style "align-items" "center"
         , style "background-color" (getBackgroundColor todo)
-        , onClick (ToggleDone todo.id)
         ]
         [ div
-            []
+            [ style "flex" "1"
+            , style "font-size" "18px"
+            ]
             [ text todo.content ]
         , button
             [ style "color" "red"
+            , style "background-color" "transparent"
+            , style "border" "none"
+            , style "cursor" "pointer"
+            , style "text-align" "right"
             , onClick (Delete todo.id)
             ]
-            [ text "Excluir" ]
+            [ FeatherIcons.trash
+                |> FeatherIcons.toHtml []
+            ]
+        , button
+            [ style "color" "green"
+            , style "background-color" "transparent"
+            , style "border" "none"
+            , style "cursor" "pointer"
+            , style "text-align" "right"
+            , onClick (ToggleDone todo.id)
+            ]
+            [ FeatherIcons.check
+                |> FeatherIcons.toHtml []
+            ]
         ]
 
 
-renderList todos =
+renderFilter filter =
+    select
+        [ style "position" "absolute"
+        , style "bottom" "24px"
+        , style "right" "24px"
+        , onInput ChangeFilter
+        ]
+        [ option [ value "3" ] [ text "To do" ]
+        , option [ value "2" ] [ text "All" ]
+        , option [ value "1" ] [ text "Done" ]
+        , option [ value "0" ] [ text "Deleted" ]
+        ]
+
+
+renderList todos filter =
     todos
         |> List.filter
-            (\todo -> todo.deleted == False)
+            (\todo -> filterTODO todo filter)
         |> List.map
             (\todo -> renderTODO todo)
         |> ul
@@ -218,5 +273,6 @@ view model =
         ]
         [ renderTitle
         , renderInput model.text
-        , renderList model.todos
+        , renderFilter model.filter
+        , renderList model.todos model.filter
         ]
