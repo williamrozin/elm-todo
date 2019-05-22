@@ -4,7 +4,7 @@ A very simple TODO list app that i built to learn more about [Elm](https://elm-l
 
 ## Pre-requirements
 
-Have [elm installed](https://guide.elm-lang.org/install.html)
+Have [Elm installed](https://guide.elm-lang.org/install.html)
 
 ## Running the App
 
@@ -40,7 +40,7 @@ It will generate a `index.html` file in the `dist` folder.
 
 ## Preview
 
-![Preview](https://i.imgur.com/lKw4ruP.png)
+![Preview](https://i.imgur.com/ckU7OdZ.png)
 
 
 ## Licence
