@@ -4,7 +4,7 @@ import Browser
 import Css exposing (..)
 import FeatherIcons
 import Html exposing (Html, button, div, h1, input, li, option, select, text, ul)
-import Html.Attributes exposing (id, placeholder, style, value)
+import Html.Attributes exposing (id, placeholder, style, title, value)
 import Html.Events exposing (onClick, onInput)
 import Html.Events.Extra exposing (onEnter)
 import Html.Extra as Html
@@ -39,7 +39,7 @@ type Action
     = Change String
     | ToggleDone String
     | AddTodo String
-    | Delete String
+    | ToggleDelete String
     | ChangeFilter String
 
 
@@ -73,12 +73,12 @@ update action model =
             in
             { model | todos = todos }
 
-        Delete id ->
+        ToggleDelete id ->
             let
                 deleteTodo : TODO -> TODO
                 deleteTodo todo =
                     if todo.id == id then
-                        { todo | deleted = True }
+                        { todo | deleted = todo.deleted == False }
 
                     else
                         { todo | deleted = todo.deleted }
@@ -135,6 +135,22 @@ filterTODO todo filter =
         True
 
 
+getToggleDoneTitle todo =
+    if todo.done then
+        "Mark as undone"
+
+    else
+        "Mark as done"
+
+
+getToggleDeletedTitle todo =
+    if todo.deleted then
+        "Restore"
+
+    else
+        "Delete"
+
+
 renderButtonAdd description =
     button
         [ onClick (AddTodo description)
@@ -180,6 +196,26 @@ renderInput text =
         ]
 
 
+renderDeleteIcon todo =
+    if todo.deleted then
+        FeatherIcons.refreshCw
+            |> FeatherIcons.toHtml []
+
+    else
+        FeatherIcons.trash
+            |> FeatherIcons.toHtml []
+
+
+renderDoneIcon todo =
+    if todo.done then
+        FeatherIcons.clock
+            |> FeatherIcons.toHtml []
+
+    else
+        FeatherIcons.check
+            |> FeatherIcons.toHtml []
+
+
 renderTODO todo =
     li
         [ style "color" (getTextColor todo)
@@ -203,10 +239,10 @@ renderTODO todo =
             , style "border" "none"
             , style "cursor" "pointer"
             , style "text-align" "right"
-            , onClick (Delete todo.id)
+            , title (getToggleDeletedTitle todo)
+            , onClick (ToggleDelete todo.id)
             ]
-            [ FeatherIcons.trash
-                |> FeatherIcons.toHtml []
+            [ renderDeleteIcon todo
             ]
         , button
             [ style "color" "green"
@@ -214,17 +250,17 @@ renderTODO todo =
             , style "border" "none"
             , style "cursor" "pointer"
             , style "text-align" "right"
+            , title (getToggleDoneTitle todo)
             , onClick (ToggleDone todo.id)
             ]
-            [ FeatherIcons.check
-                |> FeatherIcons.toHtml []
+            [ renderDoneIcon todo
             ]
         ]
 
 
 renderFilter filter =
     select
-        [ style "position" "absolute"
+        [ style "position" "fixed"
         , style "bottom" "24px"
         , style "right" "24px"
         , onInput ChangeFilter
